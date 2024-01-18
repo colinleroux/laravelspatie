@@ -78,12 +78,12 @@ The permissions at the moment are :
         ]);
         
         $user->assignRole($productmanagerRole);
-    }```
+    }
 
 
-Whilst this is exciting the only restrictions at the moment are on the crud for users
+```
+### Whilst this is exciting the only restrictions at the moment are on the crud for users
 as can be seen in the usercontroller methods eg
-
 
 ```php
  public function create()
@@ -93,9 +93,9 @@ as can be seen in the usercontroller methods eg
         }
         $allRoles = Role::pluck('name','name')->all();
         return view('users.create',compact('allRoles'));
-    }```
-    
-    the reason is it is a starter dash - so if we want a blog we then use the ->can('permission') in the relevant controller
+    }
+```
+### The reason is it is a starter dash - so if we want a blog we then use the ->can('whatever-we-need-permission') in the relevant controller
     
     Coupled with this should be the actual route protection using middleware for example : 
     
@@ -167,7 +167,7 @@ I was writing tests and munted the DB, a migrate fresh and db --seed kept failin
   A `create-users` permission already exists for guard `web`.
 ```
 
-so run 
+This was caused by caching and to clear it just ran : 
 
 `php artisan cache:forget spatie.permission.cache `
 
