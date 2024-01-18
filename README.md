@@ -12,7 +12,7 @@ in the dashboard you can create new users, create new  roles and assign the role
 The permissions at the moment are : 
 
 ```php
-     Permission::create(['name' => 'create-users']);
+        Permission::create(['name' => 'create-users']);
         Permission::create(['name' => 'edit-users']);
         Permission::create(['name' => 'delete-users']);
 
@@ -79,7 +79,6 @@ The permissions at the moment are :
         
         $user->assignRole($productmanagerRole);
     }
-
 ```
 
 Whilst this is exciting the only restrictions at the moment are on the crud for users
