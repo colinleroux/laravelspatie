@@ -101,10 +101,10 @@ as can be seen in the usercontroller methods eg
     
     Suppose you have a middleware called CheckPermission that checks if a user has a specific permission to access a route. You want to apply this middleware to a specific route.
 
-    Define the middleware in app/Http/Middleware/CheckPermission.php:
-    
-    ```php
-    <?php
+Define the middleware in app/Http/Middleware/CheckPermission.php:
+```php
+
+<?php
 
 namespace App\Http\Middleware;
 
@@ -124,7 +124,8 @@ class CheckPermission
 }
 
 ```
-Register the middleware in app/Http/Kernel.php by adding it to the $routeMiddleware array:
+
+### Register the middleware in app/Http/Kernel.php by adding it to the $routeMiddleware array:
   
  ```php
  protected $routeMiddleware = [
@@ -134,7 +135,7 @@ Register the middleware in app/Http/Kernel.php by adding it to the $routeMiddlew
 
 ```
 
-Now, you can use the checkPermission middleware in your routes. For example, in routes/web.php:
+### Now, you can use the checkPermission middleware in your routes. For example, in routes/web.php:
 
 ```php
 
@@ -147,7 +148,7 @@ Route::get('/profile', function () {
 })->middleware('checkPermission:edit-profile'); // Apply the middleware with a different permission
 ```
 
-In this example, we've applied the checkPermission middleware to specific routes (/dashboard and /profile) and provided the required permission name as a parameter to the middleware. This allows you to check if the authenticated user has the necessary permission to access each route. If the user doesn't have the permission, they will receive a 403 (Unauthorized) error.
+### In this example, we've applied the checkPermission middleware to specific routes (/dashboard and /profile) and provided the required permission name as a parameter to the middleware. This allows you to check if the authenticated user has the necessary permission to access each route. If the user doesn't have the permission, they will receive a 403 (Unauthorized) error.
 
    
 ## Trouble seeding DB
@@ -166,8 +167,7 @@ I was writing tests and munted the DB, a migrate fresh and db --seed kept failin
 
   A `create-users` permission already exists for guard `web`.
 ```
-
-This was caused by caching and to clear it just ran : 
+### This was caused by caching and to clear it just ran : 
 
 `php artisan cache:forget spatie.permission.cache `
 
