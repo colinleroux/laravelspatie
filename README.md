@@ -1,65 +1,177 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Spatie Permissions and Roles - Laravel 10 dashboard 
+Ok so things to know befor getting started - 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This is a laravel10 / breeze / spatie permissions starter.
 
-## About Laravel
+I am a novice with Livewire as you will see but there are a few humble components.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+As this stands you need to understand that the permissions are created via the db seeder
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+in the dashboard you can create new users, create new  roles and assign the roles to users.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The permissions at the moment are : 
 
-## Learning Laravel
+```php
+        Permission::create(['name' => 'create-users']);
+        Permission::create(['name' => 'edit-users']);
+        Permission::create(['name' => 'delete-users']);
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+        Permission::create(['name' => 'create-articles']);
+        Permission::create(['name' => 'edit-articles']);
+        Permission::create(['name' => 'delete-articles']);
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+        Permission::create(['name' => 'create-product']);
+        Permission::create(['name' => 'list-product']);
+        Permission::create(['name' => 'edit-product']);
+        Permission::create(['name' => 'delete-product']);
+       
+        $adminRole = Role::create(['name' => 'Admin']);
+        $editorRole = Role::create(['name' => 'Editor']);
+        $productmanagerRole = Role::create(['name' => 'ProductManager']);
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+        $adminRole->givePermissionTo([
+            'create-users',
+            'edit-users',
+            'delete-users',
+            'create-articles',
+            'edit-articles',
+            'delete-articles',
+            'create-product',
+            'list-product',
+            'edit-product',
+            'delete-product',
 
-## Laravel Sponsors
+        ]);
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+        $editorRole->givePermissionTo([
+            'create-articles',
+            'edit-articles',
+            'delete-articles',
+        ]);
 
-### Premium Partners
+        $productmanagerRole->givePermissionTo([
+            'create-product',
+            'list-product',
+            'edit-product',
+            'delete-product',
+        ]);
+          // create demo users
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Ed Editor',
+            'email' => 'editor@example.com',
+            'password' => Hash::make('password')
+        ]);
+        $user->assignRole($editorRole);
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Andrew Admin',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password')
+        ]);
 
-## Contributing
+        $user->assignRole($adminRole);
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Peter Product',
+            'email' => 'product@example.com',
+            'password' => Hash::make('password')
+        ]);
+        
+        $user->assignRole($productmanagerRole);
+    }
 
-## Code of Conduct
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+### Whilst this is exciting the only restrictions at the moment are on the crud for users
+as can be seen in the usercontroller methods eg
 
-## Security Vulnerabilities
+```php
+ public function create()
+    {
+        if (!auth()->user()->can('create-users')) {
+            abort(403, 'Unauthorized');
+        }
+        $allRoles = Role::pluck('name','name')->all();
+        return view('users.create',compact('allRoles'));
+    }
+```
+### The reason is it is a starter dash - so if we want a blog we then use the ->can('whatever-we-need-permission') in the relevant controller
+    
+    Coupled with this should be the actual route protection using middleware for example : 
+    
+    Suppose you have a middleware called CheckPermission that checks if a user has a specific permission to access a route. You want to apply this middleware to a specific route.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Define the middleware in app/Http/Middleware/CheckPermission.php:
+```php
+
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+
+class CheckPermission
+{
+    public function handle($request, Closure $next, $permissionName)
+    {
+        // Check if the authenticated user has the specified permission
+        if (!auth()->user()->hasPermissionTo($permissionName)) {
+            abort(403, 'Unauthorized'); // You can customize the error message
+        }
+
+        return $next($request);
+    }
+}
+
+```
+
+### Register the middleware in app/Http/Kernel.php by adding it to the $routeMiddleware array:
+  
+ ```php
+ protected $routeMiddleware = [
+    // ... other middleware entries
+    'checkPermission' => \App\Http\Middleware\CheckPermission::class,
+];
+
+```
+
+### Now, you can use the checkPermission middleware in your routes. For example, in routes/web.php:
+
+```php
+
+Route::get('/dashboard', function () {
+    return 'Dashboard Page';
+})->middleware('checkPermission:create-users'); // Apply the middleware with the specified permission
+
+Route::get('/profile', function () {
+    return 'Profile Page';
+})->middleware('checkPermission:edit-profile'); // Apply the middleware with a different permission
+```
+
+### In this example, we've applied the checkPermission middleware to specific routes (/dashboard and /profile) and provided the required permission name as a parameter to the middleware. This allows you to check if the authenticated user has the necessary permission to access each route. If the user doesn't have the permission, they will receive a 403 (Unauthorized) error.
+
+   
+## Trouble seeding DB
+
+I was writing tests and munted the DB, a migrate fresh and db --seed kept failing.
+   
+    
+```php
+/var/www/basesite$ php artisan db:seed
+
+   INFO  Seeding database.  
+
+  Database\Seeders\RoleAndPermissionSeeder ........................... RUNNING  
+
+   Spatie\Permission\Exceptions\PermissionAlreadyExists 
+
+  A `create-users` permission already exists for guard `web`.
+```
+### This was caused by caching and to clear it just ran : 
+
+`php artisan cache:forget spatie.permission.cache `
+
+`php artisan cache:clear`
 
 ## License
 
