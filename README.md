@@ -5,9 +5,11 @@ This is a laravel10 / breeze / spatie permissions starter.
 
 I am a novice with Livewire as you will see but there are a few humble components.
 
-As this stands you need to understand that the permissions are created via the db seeder
+Please be aware that although you can create permissions and assign them to roles and eventually users in the dashboard,
+they have no meaning until this middleware is applied either in the routes (web.php routes) file or in the controllers constructor
 
-in the dashboard you can create new users, create new  roles and assign the roles to users.
+The roles and permissions created in the initial setup via the seeder and listed below - but remember they are useless until they are applied!!!!
+
 
 The permissions at the moment are : 
 
@@ -83,7 +85,7 @@ The permissions at the moment are :
 
 ```
 ### Whilst this is exciting the only restrictions at the moment are on the crud for users
-as can be seen in the usercontroller methods eg
+as can be seen in the UserController methods eg
 
 ```php
  public function create()
@@ -149,6 +151,36 @@ Route::get('/profile', function () {
 ```
 
 ### In this example, we've applied the checkPermission middleware to specific routes (/dashboard and /profile) and provided the required permission name as a parameter to the middleware. This allows you to check if the authenticated user has the necessary permission to access each route. If the user doesn't have the permission, they will receive a 403 (Unauthorized) error.
+
+## In short - add permissions,roles,and users in dashboard and then apply them by
+
+## Apply Middleware for Access Control:
+
+In Routes: You can specify middleware directly in your routes to protect them based on roles or permissions. 
+For example, to protect a route that should only be accessible by users with a specific permission, you might do:
+
+```php
+
+Route::get('/sensitive-data', 'SensitiveDataController@index')->middleware('permission:see-sensitive-data');
+
+```
+
+In Controller 
+
+Constructors: Alternatively, you can apply middleware in the constructor of a controller to protect all actions within that controller, or you can specify it for individual actions. For example:
+
+```php
+
+public function __construct()
+{
+$this->middleware('role:admin')->only('index');
+$this->middleware('permission:view-reports,guard:web')->only('reports');
+}
+```
+
+Middleware Groups: 
+If certain groups of routes require the same set of middleware checks, you can group those routes and apply the middleware
+to the entire group, simplifying your route definitions.
 
    
 ## Trouble seeding DB
